@@ -29,7 +29,7 @@ function App() {
       }
     } 
     catch (err) {
-      setError("Server Error: Ensure the Backend is running and folder names are correct.");
+      setError("Server Error: Ensure the Backend is running and folder names are correct.",err);
     }
     finally {
       setLoading(false);
