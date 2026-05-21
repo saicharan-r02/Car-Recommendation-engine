@@ -29,7 +29,6 @@ Scikit-Learn: The Machine Learning library utilized for calculating similarities
 
 # 📁 Project Structure
 
-
 ```
 Car-Recommendation/
 ├── backend/
@@ -59,7 +58,6 @@ Car-Recommendation/
 ├── .gitignore
 └── README.md
 ```
-
 
 # ⚙️ Installation & Setup
 
