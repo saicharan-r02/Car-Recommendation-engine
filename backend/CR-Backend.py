@@ -6,7 +6,6 @@ csv_path = os.path.join(base_path, "Sport car price.csv")
 def get_recommendations(u_time, u_price):
 
     if not os.path.exists(csv_path): return []
-    
     df = pd.read_csv(csv_path)
 
     df["Price (in USD)"] = df["Price (in USD)"].astype(str).str.replace(r'[\$,"]', '', regex=True)
@@ -18,12 +17,15 @@ def get_recommendations(u_time, u_price):
     affordable = df[df["Price (in USD)"] <= u_price].copy()
 
     if affordable.empty: return []
+
     p_max = df["Price (in USD)"].max()
     t_max = df["0-60 MPH Time (seconds)"].max()
 
     affordable["score"] = (abs(affordable["Price (in USD)"] - u_price) / p_max * 0.8)+(abs(affordable["0-60 MPH Time (seconds)"] - u_time) / t_max * 0.2)
     affordable = affordable.sort_values("score")
+
     unique_cars = affordable.drop_duplicates(subset=["Car Name", "Car Model"])
+    
     results = []
 
     for _, row in unique_cars.head(5).iterrows():
