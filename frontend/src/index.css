@@ -25,13 +25,13 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1024px){
     font-size: 16px;
-  }
+}
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root{
     --text: #9ca3af;
     --text-h: #f3f4f6;
     --bg: #16171d;
@@ -47,7 +47,7 @@
 
   #social .button-icon {
     filter: invert(1) brightness(2);
-  }
+}
 }
 
 body {
