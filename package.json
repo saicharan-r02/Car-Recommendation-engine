@@ -3,22 +3,22 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
+  "scripts":{
   "dev": "concurrently \"cd Backend && node server.js\" \"cd Frontend && npm run dev\""
 },
-  "repository": {
+  "repository":{
     "type": "git",
     "url": "git+https://github.com/saicharan-o/Car-Recommendation-python.git"
   },
-  "keywords": [],
+  "keywords":[],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-  "bugs": {
+  "bugs":{
     "url": "https://github.com/saicharan-o/Car-Recommendation-python/issues"
   },
   "homepage": "https://github.com/saicharan-o/Car-Recommendation-python#readme",
-  "devDependencies": {
+  "devDependencies":{
     "concurrently": "^9.2.1"
   }
 }
