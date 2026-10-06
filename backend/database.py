@@ -17,7 +17,6 @@ Base=declarative_base()
 
 
 class Car(Base):
-    """Dynamic car inventory specifications."""
     __tablename__="cars"
 
     id=Column(Integer,primary_key=True,autoincrement=True)
@@ -31,12 +30,10 @@ class Car(Base):
     price_usd=Column(Float,nullable=False,index=True)
     created_at=Column(DateTime,default=datetime.utcnow)
 
-    # Relationships
     favorites=relationship("UserFavorite",back_populates="car",cascade="all,delete-orphan")
 
 
 class UserSearchLog(Base):
-    """Logs user criteria and search timestamps."""
     __tablename__="user_search_logs"
 
     id=Column(Integer,primary_key=True,autoincrement=True)
@@ -47,7 +44,6 @@ class UserSearchLog(Base):
 
 
 class UserFavorite(Base):
-    """User wishlist / garage saved bookmarks."""
     __tablename__="user_favorites"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -55,12 +51,10 @@ class UserFavorite(Base):
     user_note=Column(String(255),default="Saved to Garage")
     saved_at=Column(DateTime,default=datetime.utcnow)
 
-    # Relationships
     car = relationship("Car",back_populates="favorites")
 
 
 def init_db():
-    """Initializes tables and automatically seeds from CSV if empty."""
     Base.metadata.create_all(bind=engine)
     session=SessionLocal()
     try:
@@ -75,21 +69,17 @@ def init_db():
 
 
 def seed_from_csv(csv_path: str):
-    """Parses and seeds the initial CSV car records into SQLite."""
     print(f"[SEED] Importing cars from {csv_path}...")
     df=pd.read_csv(csv_path)
 
-    # Clean price column
     df["Price (in USD)"]=df["Price (in USD)"].astype(str).str.replace(r'[\$,"]','',regex=True)
     df["Price (in USD)"]=pd.to_numeric(df["Price (in USD)"],errors="coerce")
 
-    # Clean 0-60 column
     df["0-60 MPH Time (seconds)"]=pd.to_numeric(df["0-60 MPH Time (seconds)"],errors="coerce")
     
     make_col="Car Name" if "Car Name" in df.columns else "Car Make"
     df.dropna(subset=["Price (in USD)","0-60 MPH Time (seconds)",make_col,"Car Model"],inplace=True)
 
-    # Deduplicate
     df=df.drop_duplicates(subset=[make_col,"Car Model"])
 
     session=SessionLocal()
@@ -133,12 +123,10 @@ def get_recommendations(u_time:float,u_price:float,top_n:int=5) -> List[Dict[str
     try:
         cars=session.query(Car).filter(Car.price_usd<=u_price).all()
         if not cars:
-            # Fallback if no cars under strict budget: find closest affordable
             cars=session.query(Car).all()
             if not cars:
                 return[]
 
-        # Find max metrics for normalization
         p_max=session.query(func.max(Car.price_usd)).scalar()or 1.0
         t_max=session.query(func.max(Car.zero_to_sixty)).scalar()or 1.0
 
@@ -161,7 +149,6 @@ def get_recommendations(u_time:float,u_price:float,top_n:int=5) -> List[Dict[str
                 "Price":c.price_usd
             })
 
-        # Log search query
         log=UserSearchLog(
             target_time=u_time,
             target_budget=u_price,
@@ -175,7 +162,6 @@ def get_recommendations(u_time:float,u_price:float,top_n:int=5) -> List[Dict[str
         session.close()
 
 def add_new_car(brand: str,model: str,year: int,horsepower: int,zero_to_sixty: float,price_usd: float) -> int:
-    """Adds a new car to the dynamic inventory."""
     session=SessionLocal()
     try:
         car=Car(
@@ -197,7 +183,6 @@ def add_new_car(brand: str,model: str,year: int,horsepower: int,zero_to_sixty: f
 
 
 def save_favorite_car(car_id:int,note:str="Saved Car") -> bool:
-    """Adds a car to favorites."""
     session=SessionLocal()
     try:
         fav=UserFavorite(car_id=car_id,user_note=note)
@@ -211,7 +196,6 @@ def save_favorite_car(car_id:int,note:str="Saved Car") -> bool:
         session.close()
 
 def get_favorites() -> List[Dict[str,Any]]:
-    """Retrieves all saved favorites."""
     session=SessionLocal()
     try:
         favs=session.query(UserFavorite).join(Car).order_by(UserFavorite.saved_at.desc()).all()
