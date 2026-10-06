@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Dict,Any,List,Optional
 import pandas as pd
 from sqlalchemy import create_engine,Column,Integer,Float,String,DateTime,ForeignKey,func
-from sqlalchemy.orm import declarative_base, sessionmaker, relationship, scoped_session
+from sqlalchemy.orm import declarative_base,sessionmaker,relationship,scoped_session
 
 BASE_DIR=os.path.dirname(os.path.abspath(__file__))
 DB_PATH=os.path.join(BASE_DIR,"car_inventory.db")
@@ -71,15 +71,12 @@ def init_db():
 def seed_from_csv(csv_path: str):
     print(f"[SEED] Importing cars from {csv_path}...")
     df=pd.read_csv(csv_path)
-
     df["Price (in USD)"]=df["Price (in USD)"].astype(str).str.replace(r'[\$,"]','',regex=True)
     df["Price (in USD)"]=pd.to_numeric(df["Price (in USD)"],errors="coerce")
-
     df["0-60 MPH Time (seconds)"]=pd.to_numeric(df["0-60 MPH Time (seconds)"],errors="coerce")
     
     make_col="Car Name" if "Car Name" in df.columns else "Car Make"
     df.dropna(subset=["Price (in USD)","0-60 MPH Time (seconds)",make_col,"Car Model"],inplace=True)
-
     df=df.drop_duplicates(subset=[make_col,"Car Model"])
 
     session=SessionLocal()
@@ -88,7 +85,6 @@ def seed_from_csv(csv_path: str):
         for _,row in df.iterrows():
             hp_raw=re.sub(r"[^\d]","",str(row.get("Horsepower","400")))
             hp_val=int(hp_raw) if hp_raw else 400
-
             torque_raw=re.sub(r"[^\d]","",str(row.get("Torque (lb-ft)","400")))
             torque_val=int(torque_raw) if torque_raw else 400
 
@@ -118,7 +114,6 @@ def seed_from_csv(csv_path: str):
 
 
 def get_recommendations(u_time:float,u_price:float,top_n:int=5) -> List[Dict[str,Any]]:
-    """Calculates similarity against dynamic database inventory."""
     session=SessionLocal()
     try:
         cars=session.query(Car).filter(Car.price_usd<=u_price).all()
